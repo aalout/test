@@ -3,6 +3,7 @@
   inset: 0;
   width: fit-content;
   height: 100vh;
+  touch-action: none;
 }
 
 .slider.animating {
@@ -26,6 +27,7 @@
   transform-style: preserve-3d;
 
   transition: transform var(--duration-fast) var(--timing-ease-out);
+  @mixin responsive padding-block-end, 100, 0, 0;
 }
 
 .sliderContainer > * {
@@ -96,6 +98,8 @@
 
   @media (max-width: 767px) {
     max-width: 100%;
+    @mixin responsive inset-inline, 16, 16, 16;
+    @mixin responsive top, 48, 48, 48;
   }
 }
 

@@ -36,7 +36,7 @@ export const useSliderBounds = ({ cardsCount }: UseSliderBoundsProps) => {
     const startOffsetX = viewportWidth * 0.33;
     const startOffsetY = -viewportHeight * 0.26;
 
-    const additionalBuffer = cardSize * 6;
+    const additionalBuffer = cardSize * (viewportWidth < 768 ? 8 : 6);
 
     const endOffsetX = startOffsetX - totalCardsWidth - additionalBuffer;
     const endOffsetY =
@@ -72,5 +72,37 @@ export const useSliderBounds = ({ cardsCount }: UseSliderBoundsProps) => {
     [bounds]
   );
 
-  return { bounds, clamp };
+  const clampBoth = useCallback(
+    (currentX: number, currentY: number, deltaX: number, deltaY: number) => {
+      const newX = currentX + deltaX;
+      const newY = currentY + deltaY;
+
+      const isXAtMinBound = currentX <= bounds.minX && deltaX < 0;
+      const isXAtMaxBound = currentX >= bounds.maxX && deltaX > 0;
+      const isYAtMinBound = currentY <= bounds.minY && deltaY < 0;
+      const isYAtMaxBound = currentY >= bounds.maxY && deltaY > 0;
+
+      const isAnyAxisBlocked =
+        isXAtMinBound || isXAtMaxBound || isYAtMinBound || isYAtMaxBound;
+
+      if (isAnyAxisBlocked) {
+        return { x: currentX, y: currentY };
+      }
+
+      const clampedX = Math.min(Math.max(newX, bounds.minX), bounds.maxX);
+      const clampedY = Math.min(Math.max(newY, bounds.minY), bounds.maxY);
+
+      const wouldXClamp = clampedX !== newX;
+      const wouldYClamp = clampedY !== newY;
+
+      if (wouldXClamp || wouldYClamp) {
+        return { x: currentX, y: currentY };
+      }
+
+      return { x: newX, y: newY };
+    },
+    [bounds]
+  );
+
+  return { bounds, clamp, clampBoth };
 };

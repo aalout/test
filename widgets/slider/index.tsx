@@ -24,7 +24,9 @@ export const Slider = ({ cards, className }: SliderProps) => {
   const cardRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const router = useRouter();
 
-  const { bounds, clamp } = useSliderBounds({ cardsCount: cards.length });
+  const { bounds, clamp, clampBoth } = useSliderBounds({
+    cardsCount: cards.length,
+  });
 
   const handleCardHover = (index: number) => {
     if (!isAnimating) {
@@ -66,6 +68,22 @@ export const Slider = ({ cards, className }: SliderProps) => {
   };
 
   const handleMouseUp = () => {
+    if (isDragging) {
+      setIsDragging(false);
+      setDragOffset({ x: 0, y: 0 });
+    }
+  };
+
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (isAnimating) return;
+
+    const touch = e.touches[0];
+    setIsDragging(true);
+    setDragStart({ x: touch.clientX, y: touch.clientY });
+    setDragOffset({ x: 0, y: 0 });
+  };
+
+  const handleTouchEnd = () => {
     if (isDragging) {
       setIsDragging(false);
       setDragOffset({ x: 0, y: 0 });
@@ -162,8 +180,15 @@ export const Slider = ({ cards, className }: SliderProps) => {
       const scrollDeltaY = -deltaY * 0.2;
 
       setDragOffset({ x: deltaX, y: deltaY });
-      setScrollOffsetX((prev) => clamp(prev + scrollDeltaX, "x"));
-      setScrollOffsetY((prev) => clamp(prev + scrollDeltaY, "y"));
+
+      const newOffsets = clampBoth(
+        scrollOffsetX,
+        scrollOffsetY,
+        scrollDeltaX,
+        scrollDeltaY
+      );
+      setScrollOffsetX(newOffsets.x);
+      setScrollOffsetY(newOffsets.y);
 
       setDragStart({ x: e.clientX, y: e.clientY });
     };
@@ -183,7 +208,66 @@ export const Slider = ({ cards, className }: SliderProps) => {
         document.removeEventListener("mouseup", handleGlobalMouseUp);
       };
     }
-  }, [isDragging, dragStart, isAnimating, clamp]);
+  }, [
+    isDragging,
+    dragStart,
+    isAnimating,
+    clampBoth,
+    scrollOffsetX,
+    scrollOffsetY,
+  ]);
+
+  useEffect(() => {
+    const handleGlobalTouchMove = (e: TouchEvent) => {
+      if (!isDragging || isAnimating) return;
+
+      e.preventDefault();
+      const touch = e.touches[0];
+      const deltaX = touch.clientX - dragStart.x;
+      const deltaY = touch.clientY - dragStart.y;
+
+      const scrollDeltaX = deltaY * 0.45;
+      const scrollDeltaY = -deltaY * 0.2;
+
+      setDragOffset({ x: deltaX, y: deltaY });
+
+      const newOffsets = clampBoth(
+        scrollOffsetX,
+        scrollOffsetY,
+        scrollDeltaX,
+        scrollDeltaY
+      );
+      setScrollOffsetX(newOffsets.x);
+      setScrollOffsetY(newOffsets.y);
+
+      setDragStart({ x: touch.clientX, y: touch.clientY });
+    };
+
+    const handleGlobalTouchEnd = () => {
+      if (isDragging) {
+        setIsDragging(false);
+        setDragOffset({ x: 0, y: 0 });
+      }
+    };
+
+    if (isDragging) {
+      document.addEventListener("touchmove", handleGlobalTouchMove, {
+        passive: false,
+      });
+      document.addEventListener("touchend", handleGlobalTouchEnd);
+      return () => {
+        document.removeEventListener("touchmove", handleGlobalTouchMove);
+        document.removeEventListener("touchend", handleGlobalTouchEnd);
+      };
+    }
+  }, [
+    isDragging,
+    dragStart,
+    isAnimating,
+    clampBoth,
+    scrollOffsetX,
+    scrollOffsetY,
+  ]);
 
   const currentCard = hoveredIndex !== null ? cards[hoveredIndex] : cards[0];
   const shouldHideInfo =
@@ -206,6 +290,7 @@ export const Slider = ({ cards, className }: SliderProps) => {
         onMouseEnter={handleSliderMouseEnter}
         onMouseLeave={handleSliderMouseLeave}
         onMouseDown={handleMouseDown}
+        onTouchStart={handleTouchStart}
         style={{ cursor: isDragging ? "grabbing" : "grab" }}
       >
         <div
