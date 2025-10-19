@@ -217,7 +217,6 @@ export const Card = ({
         quality={100}
         unoptimized
       />
-      <h4>{card.title}</h4>
     </a>
   );
 

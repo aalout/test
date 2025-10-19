@@ -1,97 +1,84 @@
 .card {
-    transform: 
-        translateX(calc(var(--card-index) * -30% + var(--is-hovered) * 5vw))
-        translateY(calc(var(--card-index) * -30% + var(--is-hovered) * 1vw))
-        skewY(10deg);
-    z-index: calc(-1 * var(--card-index));
-    width: 22vw;
-    height: 22vw;
-    transform-style: preserve-3d;
-    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.6s ease, width 1.2s cubic-bezier(0.76, 0, 0.24, 1), height 1.2s cubic-bezier(0.76, 0, 0.24, 1);
-    cursor: none;
-    overflow: visible;
-    opacity: 1;
-    position: relative;
-    view-transition-name: var(--card-id, none);
-    
-    img {
-        object-fit: cover;
-    }
+  transform: translateX(
+      calc(var(--card-index) * -30% + var(--is-hovered) * 5vw)
+    )
+    translateY(calc(var(--card-index) * -30% + var(--is-hovered) * 1vw))
+    skewY(10deg);
+  z-index: calc(-1 * var(--card-index));
+  width: 22vw;
+  height: 22vw;
+  transform-style: preserve-3d;
+  transition: transform var(--duration-slow) var(--timing-cubic-smooth),
+    opacity var(--duration-slower) var(--timing-ease),
+    width var(--duration-extra-slowest) var(--timing-cubic-smooth-out),
+    height var(--duration-extra-slowest) var(--timing-cubic-smooth-out);
+  cursor: none;
+  overflow: visible;
+  opacity: 1;
+  position: relative;
+  view-transition-name: var(--card-id, none);
 
-    h4 {
-        position: absolute;
-        left: 0;
-        top: 0;
-        transform: translate(calc(var(--mouse-x, 0) - 50%), calc(var(--mouse-y, 0) - 50% - 100%));
-        color: white;
-        font-size: 24px;
-        font-weight: 600;
-        text-align: center;
-        mix-blend-mode: difference;
-        opacity: var(--text-opacity, 0);
-        transition: opacity 0.2s ease;
-        pointer-events: none;
-        white-space: nowrap;
-        will-change: transform;
-        z-index: 1000;
-        padding: 0;
-        line-height: 1;
-    }
+  img {
+    object-fit: cover;
+  }
+
+  @media (max-width: 767px) {
+    width: 33vw;
+    height: 33vw;
+  }
 }
 
 .card.resetTransformWithSkew {
-    position: fixed !important;
-    transform: translate(-50%, -50%) skewY(10deg) !important;
-    width: 22vw !important;
-    height: 22vw !important;
-    z-index: 9999 !important;
-    cursor: default !important;
-    pointer-events: none !important;
-    transition: none !important;
+  position: fixed;
+  transform: translate(-50%, -50%) skewY(10deg);
+  width: 22vw;
+  height: 22vw;
+  z-index: 999;
+  cursor: default;
+  pointer-events: none;
+  transition: none;
 
-    h4 {
-        opacity: 0 !important;
-    }
+  h4 {
+    opacity: 0;
+  }
 }
 
 .card.resetTransform {
-    position: fixed !important;
-    transform: translate(-50%, -50%) skewY(0deg) !important;
-    width: 22vw;
-    height: 22vw;
-    transition: 
-        transform 0.5s cubic-bezier(0.76, 0, 0.24, 1),
-        width 0.5s cubic-bezier(0.76, 0, 0.24, 1),
-        height 0.5s cubic-bezier(0.76, 0, 0.24, 1) !important;
-    z-index: 9999 !important;
-    cursor: default !important;
-    pointer-events: none !important;
+  position: fixed;
+  transform: translate(-50%, -50%) skewY(0deg);
+  width: 22vw;
+  height: 22vw;
+  transition: transform var(--duration-slow) var(--timing-cubic-smooth-out),
+    width var(--duration-slow) var(--timing-cubic-smooth-out),
+    height var(--duration-slow) var(--timing-cubic-smooth-out);
+  z-index: 9999;
+  cursor: default;
+  pointer-events: none;
 
-    h4 {
-        opacity: 0 !important;
-        transition: opacity 0.3s ease !important;
-    }
+  h4 {
+    opacity: 0;
+    transition: opacity var(--duration-medium) var(--timing-ease);
+  }
 }
 
 .card.expanding {
-    position: fixed !important;
-    transform: translate(-50%, -50%) !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    z-index: 999 !important;
-    transition: 
-        width 1s cubic-bezier(0.76, 0, 0.24, 1),
-        height 1s cubic-bezier(0.76, 0, 0.24, 1) !important;
-    cursor: default !important;
-    pointer-events: none !important;
+  position: fixed;
+  transform: translate(-50%, -50%);
+  width: 100vw;
+  height: 100vh;
+  z-index: 999;
+  transition: width var(--duration-extra-slow) var(--timing-cubic-smooth-out),
+    height var(--duration-extra-slow) var(--timing-cubic-smooth-out);
+  cursor: default;
+  pointer-events: none;
 
-    h4 {
-        opacity: 0 !important;
-    }
+  h4 {
+    opacity: 0;
+  }
 }
 
 .card.hidden {
-    opacity: 0 !important;
-    pointer-events: none;
-    transition: opacity 0.5s ease !important;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-slow) var(--timing-ease);
 }

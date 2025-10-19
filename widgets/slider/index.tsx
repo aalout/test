@@ -15,6 +15,8 @@ export const Slider = ({ cards, className }: SliderProps) => {
   const [animationStep, setAnimationStep] = useState<
     "idle" | "centering" | "hiding" | "expanding"
   >("idle");
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isMouseInSlider, setIsMouseInSlider] = useState(false);
   const sliderRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const router = useRouter();
@@ -29,6 +31,25 @@ export const Slider = ({ cards, className }: SliderProps) => {
     if (!isAnimating) {
       setHoveredIndex(null);
     }
+  };
+
+  const handleSliderMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (sliderRef.current) {
+      const rect = sliderRef.current.getBoundingClientRect();
+      setMousePosition({
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+      });
+    }
+  };
+
+  const handleSliderMouseEnter = () => {
+    setIsMouseInSlider(true);
+  };
+
+  const handleSliderMouseLeave = () => {
+    setIsMouseInSlider(false);
+    setHoveredIndex(null);
   };
 
   const handleCardClick = (index: number, cardElement: HTMLAnchorElement) => {
@@ -124,6 +145,9 @@ export const Slider = ({ cards, className }: SliderProps) => {
         className={`${styles.slider} ${className || ""} ${
           isAnimating ? styles.animating : ""
         }`}
+        onMouseMove={handleSliderMouseMove}
+        onMouseEnter={handleSliderMouseEnter}
+        onMouseLeave={handleSliderMouseLeave}
       >
         <div
           className={styles.sliderContainer}
@@ -131,8 +155,8 @@ export const Slider = ({ cards, className }: SliderProps) => {
             transform: `translateX(${scrollOffsetX}px) translateY(${scrollOffsetY}px)`,
             transition:
               animationStep === "centering"
-                ? "transform 0.8s cubic-bezier(0.76, 0, 0.24, 1)"
-                : "transform 0.1s ease-out",
+                ? `transform var(--duration-slowest) var(--timing-cubic-smooth-out)`
+                : `transform var(--duration-fast) var(--timing-ease-out)`,
           }}
         >
           {cards.map((card, index) => (
@@ -154,6 +178,18 @@ export const Slider = ({ cards, className }: SliderProps) => {
             />
           ))}
         </div>
+
+        {isMouseInSlider && hoveredIndex !== null && currentCard && (
+          <h4
+            className={styles.followingTitle}
+            style={{
+              left: `${mousePosition.x}px`,
+              top: `${mousePosition.y}px`,
+            }}
+          >
+            {currentCard.title}
+          </h4>
+        )}
       </div>
       <h3
         className={`${styles.casesTitle} ${

@@ -1,0 +1,75 @@
+.casePage {
+  min-height: 100vh;
+  background: #000;
+  color: #fff;
+  position: relative;
+}
+
+.backButton {
+  position: fixed;
+  top: 2rem;
+  left: 2rem;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  @mixin responsive gap, 8, 8, 8;
+  @mixin responsive padding-right, 16, 16, 24;
+  @mixin responsive padding-left, 8, 8, 16;
+  @mixin responsive padding-block, 8, 8, 8;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  @mixin responsive border-radius, 50, 50, 50;
+  color: #fff;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all var(--duration-medium) var(--timing-ease);
+  opacity: 0;
+  animation: var(--animation-fade-in);
+}
+
+.backButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateX(-4px);
+}
+
+.backButton svg {
+  width: 20px;
+  height: 20px;
+}
+
+.content {
+  max-width: 1200px;
+  margin: 0 auto;
+  @mixin responsive padding-left, 32, 32, 32;
+  @mixin responsive padding-right, 32, 32, 32;
+}
+
+.section {
+  opacity: 0;
+  animation: var(--animation-fade-in-up);
+}
+
+.section:nth-child(1) {
+  animation-delay: 0.4s;
+}
+
+.section:nth-child(2) {
+  animation-delay: 0.6s;
+}
+
+.section:nth-child(3) {
+  animation-delay: 0.8s;
+}
+
+.section h2 {
+  @mixin responsive font-size, 40, 40, 40;
+  @mixin responsive margin-bottom, 24, 24, 24;
+  font-weight: 600;
+}
+
+.section p {
+  @mixin responsive font-size, 18, 18, 18;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.8);
+}

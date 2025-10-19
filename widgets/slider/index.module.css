@@ -21,7 +21,7 @@
   perspective: 1000px;
   transform-style: preserve-3d;
 
-  transition: transform 0.1s ease-out;
+  transition: transform var(--duration-fast) var(--timing-ease-out);
 }
 
 .sliderContainer > * {
@@ -30,7 +30,7 @@
 
 .casesTitle {
   position: absolute;
-  @mixin responsive bottom, 64, 64, 64;
+  @mixin responsive bottom, 16, 64, 64;
   left: 50%;
   transform: translateX(-50%);
   font-size: 18px;
@@ -40,7 +40,7 @@
   text-transform: uppercase;
   letter-spacing: 0.03em;
   z-index: 1000;
-  transition: opacity 0.5s ease;
+  transition: opacity var(--duration-slow) var(--timing-ease);
 
   &.hidden {
     opacity: 0;
@@ -62,13 +62,13 @@
 .caseInfo {
   position: absolute;
   @mixin responsive left, 40, 40, 40;
-  @mixin responsive top, 220, 220, 220;
+  top: 20%;
   display: flex;
   flex-direction: column;
   @mixin responsive gap, 20, 20, 20;
   max-width: 27%;
   z-index: 1001;
-  transition: opacity 0.5s ease;
+  transition: opacity var(--duration-slow) var(--timing-ease);
 
   h3 {
     color: #808080;
@@ -89,4 +89,18 @@
   &.hidden {
     opacity: 0;
   }
+}
+
+.followingTitle {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1001;
+  transform: translate(-50%, -50%);
+  font-size: 28px;
+  font-weight: 600;
+  color: white;
+  mix-blend-mode: difference;
+  text-align: center;
+  transition: opacity var(--duration-fast) var(--timing-ease);
+  white-space: nowrap;
 }
