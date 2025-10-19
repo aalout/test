@@ -13,8 +13,7 @@
     opacity: 1;
     position: relative;
     view-transition-name: var(--card-id, none);
-
-    /* Next.js Image с fill автоматически имеет нужные стили */
+    
     img {
         object-fit: cover;
     }
@@ -40,12 +39,11 @@
     }
 }
 
-/* ШАГ 2: Начальное состояние в портале (со skew) */
 .card.resetTransformWithSkew {
-    /* Карточка рендерится в body через портал */
-    /* Начинаем СО skew чтобы анимация сработала */
     position: fixed !important;
     transform: translate(-50%, -50%) skewY(10deg) !important;
+    width: 22vw !important;
+    height: 22vw !important;
     z-index: 9999 !important;
     cursor: default !important;
     pointer-events: none !important;
@@ -56,14 +54,11 @@
     }
 }
 
-/* ШАГ 2: Финальное состояние (без skew) */
 .card.resetTransform {
-    /* Убираем skew и перемещаем в центр */
     position: fixed !important;
     transform: translate(-50%, -50%) skewY(0deg) !important;
     width: 22vw;
     height: 22vw;
-    /* Анимируем transform для плавного выпрямления */
     transition: 
         transform 0.5s cubic-bezier(0.76, 0, 0.24, 1),
         width 0.5s cubic-bezier(0.76, 0, 0.24, 1),
@@ -78,15 +73,12 @@
     }
 }
 
-/* ШАГ 3: Расширение до fullscreen */
 .card.expanding {
-    /* Карточка УЖЕ в центре, просто расширяем */
     position: fixed !important;
     transform: translate(-50%, -50%) !important;
     width: 100vw !important;
     height: 100vh !important;
     z-index: 999 !important;
-    /* Анимируем ТОЛЬКО размер */
     transition: 
         width 1s cubic-bezier(0.76, 0, 0.24, 1),
         height 1s cubic-bezier(0.76, 0, 0.24, 1) !important;

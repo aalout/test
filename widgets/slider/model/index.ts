@@ -3,6 +3,8 @@ export interface SliderCard {
   image: string;
   title: string;
   link: string;
+  type: string;
+  description: string;
 }
 
 export interface SliderProps {

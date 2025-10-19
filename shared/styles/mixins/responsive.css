@@ -1,0 +1,29 @@
+/* prettier-ignore */
+
+@define-mixin responsive $property, $mobile, $tablet, $desktop {
+    $(property): $(mobile)px;
+
+    @media (min-width: 768px) {
+        $(property): calc(
+            $(mobile)px +
+            ($(tablet) - $(mobile)) *
+            ((100vw - 480px) / (1023 - 480))
+        );
+    }
+
+    @media (min-width: 1024px) {
+        $(property): calc(
+            $(tablet)px +
+            ($(desktop) - $(tablet)) *
+            ((100vw - 768px) / (1440 - 768))
+        );
+    }
+
+    @media (min-width: 1920px) {
+        $(property): calc(
+            $(desktop)px +
+            ($(desktop) * 0.05) *
+            ((100vw - 1440px) / 100)
+        );
+    }
+}
