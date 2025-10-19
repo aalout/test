@@ -7,6 +7,11 @@
   overflow: hidden;
 }
 
+.slider.animating {
+  pointer-events: none;
+  cursor: default !important;
+}
+
 .sliderContainer {
   position: relative;
   width: 100%;

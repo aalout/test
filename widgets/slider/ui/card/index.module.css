@@ -1,21 +1,21 @@
 .card {
     transform: 
-        translateX(calc(var(--card-index) * -30% + var(--is-hovered) * 5vw + var(--is-clicked) * (50vw - var(--card-index) * 30%)))
-        translateY(calc(var(--card-index) * -30% + var(--is-hovered) * 1vw + var(--is-clicked) * (50vh - var(--card-index) * 30%)))
-        skewY(calc(10deg * (1 - var(--is-clicked))))
-        scale(calc(1 + var(--is-clicked) * 0.5));
-    z-index: calc(-1 * var(--card-index) + var(--is-clicked) * 1000);
+        translateX(calc(var(--card-index) * -30% + var(--is-hovered) * 5vw))
+        translateY(calc(var(--card-index) * -30% + var(--is-hovered) * 1vw))
+        skewY(10deg);
+    z-index: calc(-1 * var(--card-index));
     width: 22vw;
     height: 22vw;
     transform-style: preserve-3d;
-    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.6s ease, width 1.2s cubic-bezier(0.76, 0, 0.24, 1), height 1.2s cubic-bezier(0.76, 0, 0.24, 1);
     cursor: none;
     overflow: visible;
-    opacity: calc(1 - var(--is-animating) * (1 - var(--is-clicked)));
+    opacity: 1;
+    position: relative;
+    view-transition-name: var(--card-id, none);
 
+    /* Next.js Image с fill автоматически имеет нужные стили */
     img {
-        width: 100%;
-        height: 100%;
         object-fit: cover;
     }
 
@@ -38,4 +38,68 @@
         padding: 0;
         line-height: 1;
     }
+}
+
+/* ШАГ 2: Начальное состояние в портале (со skew) */
+.card.resetTransformWithSkew {
+    /* Карточка рендерится в body через портал */
+    /* Начинаем СО skew чтобы анимация сработала */
+    position: fixed !important;
+    transform: translate(-50%, -50%) skewY(10deg) !important;
+    z-index: 9999 !important;
+    cursor: default !important;
+    pointer-events: none !important;
+    transition: none !important;
+
+    h4 {
+        opacity: 0 !important;
+    }
+}
+
+/* ШАГ 2: Финальное состояние (без skew) */
+.card.resetTransform {
+    /* Убираем skew и перемещаем в центр */
+    position: fixed !important;
+    transform: translate(-50%, -50%) skewY(0deg) !important;
+    width: 22vw;
+    height: 22vw;
+    /* Анимируем transform для плавного выпрямления */
+    transition: 
+        transform 0.5s cubic-bezier(0.76, 0, 0.24, 1),
+        width 0.5s cubic-bezier(0.76, 0, 0.24, 1),
+        height 0.5s cubic-bezier(0.76, 0, 0.24, 1) !important;
+    z-index: 9999 !important;
+    cursor: default !important;
+    pointer-events: none !important;
+
+    h4 {
+        opacity: 0 !important;
+        transition: opacity 0.3s ease !important;
+    }
+}
+
+/* ШАГ 3: Расширение до fullscreen */
+.card.expanding {
+    /* Карточка УЖЕ в центре, просто расширяем */
+    position: fixed !important;
+    transform: translate(-50%, -50%) !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 999 !important;
+    /* Анимируем ТОЛЬКО размер */
+    transition: 
+        width 1s cubic-bezier(0.76, 0, 0.24, 1),
+        height 1s cubic-bezier(0.76, 0, 0.24, 1) !important;
+    cursor: default !important;
+    pointer-events: none !important;
+
+    h4 {
+        opacity: 0 !important;
+    }
+}
+
+.card.hidden {
+    opacity: 0 !important;
+    pointer-events: none;
+    transition: opacity 0.5s ease !important;
 }

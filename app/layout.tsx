@@ -14,6 +14,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <style>{`
+          @view-transition {
+            navigation: auto;
+          }
+          
+          /* Предотвращаем мигание при загрузке изображений */
+          img {
+            image-rendering: crisp-edges;
+            image-rendering: -webkit-optimize-contrast;
+          }
+        `}</style>
+      </head>
       <body>
         {children}
       </body>

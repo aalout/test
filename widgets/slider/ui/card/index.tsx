@@ -1,21 +1,28 @@
 import { SliderCard } from '../../model';
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import Image from 'next/image';
 import styles from './index.module.css';
 
 interface CardProps {
   card: SliderCard;
   index: number;
   isHovered: boolean;
-  isClicked: boolean;
-  isAnimating: boolean;
   onHover: (index: number) => void;
   onLeave: () => void;
-  onClick: (index: number) => void;
+  isClicked: boolean;
+  shouldHide: boolean;
+  animationStep: 'idle' | 'centering' | 'hiding' | 'expanding';
+  onClick: (index: number, element: HTMLAnchorElement) => void;
 }
 
-export const Card = ({ card, index, isHovered, isClicked, isAnimating, onHover, onLeave, onClick }: CardProps) => {
+export const Card = ({ card, index, isHovered, onHover, onLeave, isClicked, shouldHide, animationStep, onClick }: CardProps) => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isVisible, setIsVisible] = useState(false);
+  const [fixedPos, setFixedPos] = useState<{ top: number; left: number; width: number; height: number } | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
+  const [shouldRenderPortal, setShouldRenderPortal] = useState(false);
+  const [shouldRemoveSkew, setShouldRemoveSkew] = useState(false);
   const cardRef = useRef<HTMLAnchorElement>(null);
   const targetPosition = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const currentPosition = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -36,6 +43,10 @@ export const Card = ({ card, index, isHovered, isClicked, isAnimating, onHover, 
 
     rafId.current = requestAnimationFrame(animate);
   };
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     if (isVisible) {
@@ -86,34 +97,115 @@ export const Card = ({ card, index, isHovered, isClicked, isAnimating, onHover, 
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    onClick(index);
+    if (cardRef.current) {
+      onClick(index, cardRef.current);
+    }
   };
 
-  return (
+  // Вычисляем позицию перед порталом и плавно переводим в центр
+  useEffect(() => {
+    if (animationStep === 'hiding' && cardRef.current && !fixedPos) {
+      const rect = cardRef.current.getBoundingClientRect();
+      // Сохраняем текущую позицию и размер карточки относительно VIEWPORT
+      const currentPos = {
+        top: rect.top + rect.height / 2,
+        left: rect.left + rect.width / 2,
+        width: rect.width,
+        height: rect.height
+      };
+      setFixedPos(currentPos);
+
+      // Даем время остальным карточкам исчезнуть (0.5s opacity transition)
+      setTimeout(() => {
+        // Включаем портал (карточка создастся СО skew)
+        setShouldRenderPortal(true);
+        
+        // Плавно переводим в центр экрана и убираем skew
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            setFixedPos({
+              ...currentPos,
+              top: window.innerHeight / 2,
+              left: window.innerWidth / 2
+            });
+            // Убираем skew для анимации
+            setShouldRemoveSkew(true);
+          });
+        });
+      }, 500); // Ждем пока остальные карточки исчезнут
+    }
+  }, [animationStep, fixedPos]);
+
+  const getCardClassName = () => {
+    const classes = [styles.card];
+    if (shouldHide) classes.push(styles.hidden);
+    if (isClicked) {
+      if (animationStep === 'hiding') {
+        // Добавляем класс с skew или без в зависимости от состояния
+        if (shouldRemoveSkew) {
+          classes.push(styles.resetTransform);
+        } else if (shouldRenderPortal) {
+          classes.push(styles.resetTransformWithSkew);
+        }
+      }
+      if (animationStep === 'expanding') classes.push(styles.expanding);
+    }
+    return classes.join(' ');
+  };
+
+  const getCardStyle = () => {
+    const baseStyle = {
+      '--card-index': index,
+      '--card-delay': `${index * 0.1}s`,
+      '--is-hovered': isHovered ? 1 : 0,
+      '--mouse-x': `${mousePosition.x}px`,
+      '--mouse-y': `${mousePosition.y}px`,
+      '--text-opacity': isVisible ? 1 : 0,
+      '--card-id': isClicked ? `card-${card.id}` : 'none'
+    } as React.CSSProperties;
+
+    // На шагах hiding и expanding (в портале) устанавливаем абсолютную позицию
+    if ((animationStep === 'hiding' || animationStep === 'expanding') && fixedPos && isClicked && shouldRenderPortal) {
+      return {
+        ...baseStyle,
+        top: `${fixedPos.top}px`,
+        left: `${fixedPos.left}px`,
+        width: animationStep === 'hiding' ? `${fixedPos.width}px` : undefined,
+        height: animationStep === 'hiding' ? `${fixedPos.height}px` : undefined
+      };
+    }
+
+    return baseStyle;
+  };
+
+  const cardContent = (
     <a
       ref={cardRef}
-      style={{
-        '--card-index': index,
-        '--card-delay': `${index * 0.1}s`,
-        '--is-hovered': isHovered ? 1 : 0,
-        '--is-clicked': isClicked ? 1 : 0,
-        '--is-animating': isAnimating ? 1 : 0,
-        '--mouse-x': `${mousePosition.x}px`,
-        '--mouse-y': `${mousePosition.y}px`,
-        '--text-opacity': isVisible ? 1 : 0
-      } as React.CSSProperties}
+      style={getCardStyle()}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onMouseMove={handleMouseMove}
       onClick={handleClick}
-      className={styles.card}
+      className={getCardClassName()}
       href={card.link}
     >
-      <img
+      <Image
         src={card.image}
         alt={card.title}
+        fill
+        sizes="22vw"
+        quality={100}
+        unoptimized
       />
       <h4>{card.title}</h4>
     </a>
   );
+
+  // На шагах hiding и expanding рендерим через портал в body
+  // Но только после задержки (shouldRenderPortal)
+  if ((animationStep === 'hiding' || animationStep === 'expanding') && isClicked && isMounted && shouldRenderPortal) {
+    return createPortal(cardContent, document.body);
+  }
+
+  return cardContent;
 };
