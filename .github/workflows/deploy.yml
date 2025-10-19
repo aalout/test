@@ -11,6 +11,10 @@ permissions:
   pages: write
   id-token: write
 
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -36,10 +40,17 @@ jobs:
       - name: Add .nojekyll file
         run: touch out/.nojekyll
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./out
-          force_orphan: true
+          path: ./out
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
