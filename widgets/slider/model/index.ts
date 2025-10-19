@@ -11,3 +11,5 @@ export interface SliderProps {
   cards: SliderCard[];
   className?: string;
 }
+
+export { useSliderBounds } from "./useSliderBounds";

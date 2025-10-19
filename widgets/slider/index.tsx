@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { SliderProps } from "./model";
+import { SliderProps, useSliderBounds } from "./model";
 import { Card } from "./ui/card";
 import styles from "./index.module.css";
 
@@ -23,6 +23,8 @@ export const Slider = ({ cards, className }: SliderProps) => {
   const sliderRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const router = useRouter();
+
+  const { bounds, clamp } = useSliderBounds({ cardsCount: cards.length });
 
   const handleCardHover = (index: number) => {
     if (!isAnimating) {
@@ -126,17 +128,20 @@ export const Slider = ({ cards, className }: SliderProps) => {
     }, 100);
   };
 
-  const handleWheel = (e: WheelEvent) => {
-    if (isAnimating || isDragging) {
+  const handleWheel = useCallback(
+    (e: WheelEvent) => {
+      if (isAnimating || isDragging) {
+        e.preventDefault();
+        return;
+      }
       e.preventDefault();
-      return;
-    }
-    e.preventDefault();
-    const deltaX = e.deltaY * 0.45;
-    const deltaY = e.deltaY * 0.2;
-    setScrollOffsetX((prev) => prev + deltaX);
-    setScrollOffsetY((prev) => prev - deltaY);
-  };
+      const deltaX = e.deltaY * 0.45;
+      const deltaY = e.deltaY * 0.2;
+      setScrollOffsetX((prev) => clamp(prev + deltaX, "x"));
+      setScrollOffsetY((prev) => clamp(prev - deltaY, "y"));
+    },
+    [isAnimating, isDragging, clamp]
+  );
 
   useEffect(() => {
     const slider = sliderRef.current;
@@ -144,7 +149,7 @@ export const Slider = ({ cards, className }: SliderProps) => {
       slider.addEventListener("wheel", handleWheel, { passive: false });
       return () => slider.removeEventListener("wheel", handleWheel);
     }
-  }, [isAnimating, isDragging]);
+  }, [handleWheel]);
 
   useEffect(() => {
     const handleGlobalMouseMove = (e: MouseEvent) => {
@@ -157,8 +162,8 @@ export const Slider = ({ cards, className }: SliderProps) => {
       const scrollDeltaY = -deltaY * 0.2;
 
       setDragOffset({ x: deltaX, y: deltaY });
-      setScrollOffsetX((prev) => prev + scrollDeltaX);
-      setScrollOffsetY((prev) => prev + scrollDeltaY);
+      setScrollOffsetX((prev) => clamp(prev + scrollDeltaX, "x"));
+      setScrollOffsetY((prev) => clamp(prev + scrollDeltaY, "y"));
 
       setDragStart({ x: e.clientX, y: e.clientY });
     };
@@ -178,7 +183,7 @@ export const Slider = ({ cards, className }: SliderProps) => {
         document.removeEventListener("mouseup", handleGlobalMouseUp);
       };
     }
-  }, [isDragging, dragStart, isAnimating]);
+  }, [isDragging, dragStart, isAnimating, clamp]);
 
   const currentCard = hoveredIndex !== null ? cards[hoveredIndex] : cards[0];
   const shouldHideInfo =
