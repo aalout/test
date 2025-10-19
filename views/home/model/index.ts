@@ -12,7 +12,7 @@ export const sliderCards: SliderCard[] = [
   },
   {
     id: "2",
-    image: "/assets/images/slider/slide1.png",
+    image: "/assets/images/slider/slide2.png",
     title: "FLYING BOARD",
     link: "/flying-board",
     type: "Fintech",
@@ -20,7 +20,7 @@ export const sliderCards: SliderCard[] = [
   },
   {
     id: "3",
-    image: "/assets/images/slider/slide1.png",
+    image: "/assets/images/slider/slide3.png",
     title: "WIND SURFING",
     link: "/wind-surfing",
     type: "Fintech",
@@ -29,7 +29,7 @@ export const sliderCards: SliderCard[] = [
   },
   {
     id: "4",
-    image: "/assets/images/slider/slide1.png",
+    image: "/assets/images/slider/slide4.png",
     title: "BLUE NATURE",
     link: "/blue-nature",
     type: "Fintech",
@@ -37,7 +37,7 @@ export const sliderCards: SliderCard[] = [
   },
   {
     id: "5",
-    image: "/assets/images/slider/slide1.png",
+    image: "/assets/images/slider/slide5.png",
     title: "KONTRAST",
     link: "/kontrast",
     type: "Fintech",
@@ -46,7 +46,7 @@ export const sliderCards: SliderCard[] = [
   },
   {
     id: "6",
-    image: "/assets/images/slider/slide1.png",
+    image: "/assets/images/slider/slide6.png",
     title: "LA FABRIQUE",
     link: "/la-fabrique",
     type: "Fintech",
@@ -54,19 +54,11 @@ export const sliderCards: SliderCard[] = [
   },
   {
     id: "7",
-    image: "/assets/images/slider/slide1.png",
+    image: "/assets/images/slider/slide7.png",
     title: "BOTME",
     link: "/winter-forest",
     type: "Fintech",
     description:
       "Разработка Telegram mini app для администрирования Telegram-каналов",
-  },
-  {
-    id: "8",
-    image: "/assets/images/slider/slide1.png",
-    title: "TEVA",
-    link: "/teva",
-    type: "Fintech",
-    description: "Разработка hr-сервиса для подбора специалистов",
   },
 ];

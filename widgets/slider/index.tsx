@@ -17,6 +17,9 @@ export const Slider = ({ cards, className }: SliderProps) => {
   >("idle");
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isMouseInSlider, setIsMouseInSlider] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const sliderRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const router = useRouter();
@@ -50,6 +53,21 @@ export const Slider = ({ cards, className }: SliderProps) => {
   const handleSliderMouseLeave = () => {
     setIsMouseInSlider(false);
     setHoveredIndex(null);
+  };
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isAnimating) return;
+
+    setIsDragging(true);
+    setDragStart({ x: e.clientX, y: e.clientY });
+    setDragOffset({ x: 0, y: 0 });
+  };
+
+  const handleMouseUp = () => {
+    if (isDragging) {
+      setIsDragging(false);
+      setDragOffset({ x: 0, y: 0 });
+    }
   };
 
   const handleCardClick = (index: number, cardElement: HTMLAnchorElement) => {
@@ -109,7 +127,7 @@ export const Slider = ({ cards, className }: SliderProps) => {
   };
 
   const handleWheel = (e: WheelEvent) => {
-    if (isAnimating) {
+    if (isAnimating || isDragging) {
       e.preventDefault();
       return;
     }
@@ -126,7 +144,41 @@ export const Slider = ({ cards, className }: SliderProps) => {
       slider.addEventListener("wheel", handleWheel, { passive: false });
       return () => slider.removeEventListener("wheel", handleWheel);
     }
-  }, [isAnimating]);
+  }, [isAnimating, isDragging]);
+
+  useEffect(() => {
+    const handleGlobalMouseMove = (e: MouseEvent) => {
+      if (!isDragging || isAnimating) return;
+
+      const deltaX = e.clientX - dragStart.x;
+      const deltaY = e.clientY - dragStart.y;
+
+      const scrollDeltaX = deltaY * 0.45;
+      const scrollDeltaY = -deltaY * 0.2;
+
+      setDragOffset({ x: deltaX, y: deltaY });
+      setScrollOffsetX((prev) => prev + scrollDeltaX);
+      setScrollOffsetY((prev) => prev + scrollDeltaY);
+
+      setDragStart({ x: e.clientX, y: e.clientY });
+    };
+
+    const handleGlobalMouseUp = () => {
+      if (isDragging) {
+        setIsDragging(false);
+        setDragOffset({ x: 0, y: 0 });
+      }
+    };
+
+    if (isDragging) {
+      document.addEventListener("mousemove", handleGlobalMouseMove);
+      document.addEventListener("mouseup", handleGlobalMouseUp);
+      return () => {
+        document.removeEventListener("mousemove", handleGlobalMouseMove);
+        document.removeEventListener("mouseup", handleGlobalMouseUp);
+      };
+    }
+  }, [isDragging, dragStart, isAnimating]);
 
   const currentCard = hoveredIndex !== null ? cards[hoveredIndex] : cards[0];
   const shouldHideInfo =
@@ -144,19 +196,22 @@ export const Slider = ({ cards, className }: SliderProps) => {
         ref={sliderRef}
         className={`${styles.slider} ${className || ""} ${
           isAnimating ? styles.animating : ""
-        }`}
+        } ${isDragging ? styles.dragging : ""}`}
         onMouseMove={handleSliderMouseMove}
         onMouseEnter={handleSliderMouseEnter}
         onMouseLeave={handleSliderMouseLeave}
+        onMouseDown={handleMouseDown}
+        style={{ cursor: isDragging ? "grabbing" : "grab" }}
       >
         <div
           className={styles.sliderContainer}
           style={{
             transform: `translateX(${scrollOffsetX}px) translateY(${scrollOffsetY}px)`,
-            transition:
-              animationStep === "centering"
-                ? `transform var(--duration-slowest) var(--timing-cubic-smooth-out)`
-                : `transform var(--duration-fast) var(--timing-ease-out)`,
+            transition: isDragging
+              ? "none"
+              : animationStep === "centering"
+              ? `transform var(--duration-slowest) var(--timing-cubic-smooth-out)`
+              : `transform var(--duration-fast) var(--timing-ease-out)`,
           }}
         >
           {cards.map((card, index) => (

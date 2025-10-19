@@ -10,6 +10,10 @@
   cursor: default;
 }
 
+.slider.dragging {
+  user-select: none;
+}
+
 .sliderContainer {
   position: relative;
   width: 100%;
