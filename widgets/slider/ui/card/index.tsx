@@ -128,15 +128,21 @@ export const Card = ({
   useEffect(() => {
     if (animationStep === "hiding" && cardRef.current && !fixedPos) {
       const rect = cardRef.current.getBoundingClientRect();
+
+      const isMobile = window.innerWidth <= 767;
+      const cardSize = isMobile
+        ? window.innerWidth * 0.44
+        : window.innerWidth * 0.22;
+
       const currentPos = {
         top: rect.top + rect.height / 2,
         left: rect.left + rect.width / 2,
-        width: rect.width,
-        height: rect.height,
+        width: cardSize,
+        height: cardSize,
       };
       setFixedPos(currentPos);
 
-      setTimeout(() => {
+      requestAnimationFrame(() => {
         setShouldRenderPortal(true);
 
         requestAnimationFrame(() => {
@@ -149,7 +155,7 @@ export const Card = ({
             setShouldRemoveSkew(true);
           });
         });
-      }, 500);
+      });
     }
   }, [animationStep, fixedPos]);
 
@@ -190,8 +196,6 @@ export const Card = ({
         ...baseStyle,
         top: `${fixedPos.top}px`,
         left: `${fixedPos.left}px`,
-        width: animationStep === "hiding" ? `${fixedPos.width}px` : undefined,
-        height: animationStep === "hiding" ? `${fixedPos.height}px` : undefined,
       };
     }
 
