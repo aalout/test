@@ -3,13 +3,14 @@ import { CasePage } from "@/views/case";
 import { sliderCards } from "@/views/home/model";
 
 interface CasePageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
-export default function CasePageRoute({ params }: CasePageProps) {
-  const caseData = sliderCards.find((card) => card.link === `/${params.slug}`);
+export default async function CasePageRoute({ params }: CasePageProps) {
+  const { slug } = await params;
+  const caseData = sliderCards.find((card) => card.link === `/${slug}`);
 
   if (!caseData) {
     notFound();
