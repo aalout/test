@@ -16,7 +16,7 @@ export const Slider = ({ cards, className }: SliderProps) => {
     "idle" | "centering" | "hiding" | "expanding"
   >("idle");
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isMouseInSlider, setIsMouseInSlider] = useState(false);
+  const [isMouseInSlider, setIsMouseInSlider] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
