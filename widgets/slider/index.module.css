@@ -115,4 +115,5 @@
   text-align: center;
   transition: opacity var(--duration-fast) var(--timing-ease);
   white-space: nowrap;
+  opacity: var(--text-opacity, 0);
 }

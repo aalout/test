@@ -42,6 +42,7 @@ export const Card = ({
   const targetPosition = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const currentPosition = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const rafId = useRef<number | null>(null);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const lerp = (start: number, end: number, factor: number): number => {
     return start + (end - start) * factor;
@@ -69,6 +70,12 @@ export const Card = ({
 
   useEffect(() => {
     setIsMounted(true);
+
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -98,6 +105,10 @@ export const Card = ({
   };
 
   const handleMouseEnter = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+
     onHover(index);
     if (cardRef.current) {
       const rect = cardRef.current.getBoundingClientRect();
@@ -110,10 +121,17 @@ export const Card = ({
         y: e.clientY - rect.top,
       };
     }
-    setIsVisible(true);
+
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsVisible(true);
+    }, 16);
   };
 
   const handleMouseLeave = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+
     onLeave();
     setIsVisible(false);
   };
@@ -182,7 +200,7 @@ export const Card = ({
       "--is-hovered": isHovered ? 1 : 0,
       "--mouse-x": `${mousePosition.x}px`,
       "--mouse-y": `${mousePosition.y}px`,
-      "--text-opacity": isVisible ? 1 : 0,
+      "--text-opacity": isVisible && isHovered ? 1 : 0,
       "--card-id": isClicked ? `card-${card.id}` : "none",
     } as React.CSSProperties;
 

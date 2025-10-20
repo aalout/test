@@ -30,12 +30,16 @@ export const Slider = ({ cards, className }: SliderProps) => {
 
   const handleCardHover = (index: number) => {
     if (!isAnimating) {
-      setHoveredIndex(index);
+      // Принудительно обновляем состояние с небольшой задержкой
+      requestAnimationFrame(() => {
+        setHoveredIndex(index);
+      });
     }
   };
 
   const handleCardLeave = () => {
     if (!isAnimating) {
+      // Немедленно сбрасываем hover состояние
       setHoveredIndex(null);
     }
   };
@@ -327,10 +331,13 @@ export const Slider = ({ cards, className }: SliderProps) => {
         {isMouseInSlider && hoveredIndex !== null && currentCard && (
           <h4
             className={styles.followingTitle}
-            style={{
-              left: `${mousePosition.x}px`,
-              top: `${mousePosition.y}px`,
-            }}
+            style={
+              {
+                left: `${mousePosition.x}px`,
+                top: `${mousePosition.y}px`,
+                "--text-opacity": 1,
+              } as React.CSSProperties
+            }
           >
             {currentCard.title}
           </h4>
